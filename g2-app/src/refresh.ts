@@ -94,8 +94,10 @@ export async function refreshAndRebuild(): Promise<void> {
       await renderCurrent()
       // Resync the auto-advance timer + progress bar to the new tweet 0 page 0,
       // otherwise the user lands on the new top with a half-filled progress
-      // bar from the previous tweet's cycle.
-      if (state.mode === 'auto') startAutoTimer()
+      // bar from the previous tweet's cycle. Gated on `foregrounded` so a
+      // refresh that completes while the app is in the background doesn't
+      // silently reinstate the timer (mirrors the finally-block guard).
+      if (state.foregrounded && state.mode === 'auto') startAutoTimer()
     } else if (state.tweets.length === 0 && fresh.length > 0) {
       // First-time load with empty in-memory state.
       state.tweets = fresh
@@ -103,7 +105,7 @@ export async function refreshAndRebuild(): Promise<void> {
       state.currentPage = 0
       state.pages = paginateText(state.tweets[0].text)
       await renderCurrent()
-      if (state.mode === 'auto') startAutoTimer()
+      if (state.foregrounded && state.mode === 'auto') startAutoTimer()
     } else {
       // Nothing new — keep position, just refresh the header so any old
       // NEW! markers (now cleared) disappear.
@@ -113,8 +115,11 @@ export async function refreshAndRebuild(): Promise<void> {
     // Recompute NEW page-count cache and arm the next AUTO precharge cycle.
     rebuildNewPageCounts()
 
-    // First successful refresh clears the "Loading first batch..." placeholder.
-    state.initialFetchPending = false
+    // First successful refresh clears the "Loading first batch..." placeholder
+    // — but only if we actually have data. Otherwise (account is empty in the
+    // 7-day window) we'd flip to "Failed to load tweets" on a successful
+    // fetch, which is misleading.
+    if (state.tweets.length > 0) state.initialFetchPending = false
 
     setRefreshStatus('done')
   } finally {
