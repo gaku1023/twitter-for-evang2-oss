@@ -17,23 +17,51 @@ const HTML_ENTITIES: Record<string, string> = {
   '&nbsp;': ' ',
 }
 
+// Unicode code point must fit in [0, 0x10FFFF]; outside that range
+// String.fromCodePoint throws RangeError. Malformed entities fall back to the
+// original matched text so a single bad numeric reference can't kill the
+// whole normalize() pass.
+function safeFromCodePoint(n: number, original: string): string {
+  if (!Number.isFinite(n) || n < 0 || n > 0x10ffff) return original
+  return String.fromCodePoint(n)
+}
+
 function decodeHtmlEntities(s: string): string {
   // Named entities first, then numeric (&#1234; / &#x4e2d;).
   let out = s.replace(/&(?:amp|lt|gt|quot|#39|apos|nbsp);/g, m => HTML_ENTITIES[m] ?? m)
-  out = out.replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
-  out = out.replace(/&#x([0-9a-fA-F]+);/g, (_, code) =>
-    String.fromCodePoint(parseInt(code, 16)),
+  out = out.replace(/&#(\d+);/g, (m, code) => safeFromCodePoint(Number(code), m))
+  out = out.replace(/&#x([0-9a-fA-F]+);/g, (m, code) =>
+    safeFromCodePoint(parseInt(code, 16), m),
   )
   return out
 }
 
 function expandUrls(
   text: string,
-  urls: { url: string; display_url?: string }[] | undefined,
+  urls: { url: string; display_url?: string; start?: number; end?: number }[] | undefined,
 ): string {
   if (!urls) return text
+  // Prefer the API-provided start/end indices: this avoids substring
+  // collisions when one t.co URL happens to be a prefix of another, and
+  // sidesteps replacing the same shortlink twice if it appears in body text.
+  // X API v2 indices count UTF-16 code units, matching JS string slicing.
+  const indexed = urls
+    .filter(u => u.display_url && typeof u.start === 'number' && typeof u.end === 'number')
+    .slice()
+    .sort((a, b) => (b.start as number) - (a.start as number))
+  if (indexed.length === urls.filter(u => u.display_url).length && indexed.length > 0) {
+    let out = text
+    for (const u of indexed) {
+      out = out.slice(0, u.start as number) + (u.display_url as string) + out.slice(u.end as number)
+    }
+    return out
+  }
+  // Fallback: no indices available — match by string. Replace longest URLs
+  // first so a shorter URL that is a prefix of a longer one doesn't trigger
+  // partial replacement.
   let out = text
-  for (const u of urls) {
+  const byLen = urls.slice().sort((a, b) => b.url.length - a.url.length)
+  for (const u of byLen) {
     if (u.url && u.display_url) {
       out = out.split(u.url).join(u.display_url)
     }
@@ -43,7 +71,7 @@ function expandUrls(
 
 function cleanText(
   raw: string,
-  urls: { url: string; display_url?: string }[] | undefined,
+  urls: { url: string; display_url?: string; start?: number; end?: number }[] | undefined,
 ): string {
   return decodeHtmlEntities(expandUrls(raw, urls)).trim()
 }
