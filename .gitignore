@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out.ehpk
+
+# Secrets / local config
+.env
+.env.local
+.env.*.local
+*.cookies.json
+
+# Cloudflare Wrangler state
+.wrangler/
+# Per-user wrangler.toml is generated from wrangler.example.toml and contains
+# the user's own Cloudflare account/KV IDs — keep it out of git so forks don't
+# step on each other's deploys.
+worker/wrangler.toml
+
+# Per-user Even Hub manifest (generated from app.example.json)
+g2-app/app.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp

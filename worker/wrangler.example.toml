@@ -1,0 +1,21 @@
+# Copy this file to `wrangler.toml` and replace the placeholders with your own
+# Cloudflare account ID and KV namespace ID. Then run `wrangler deploy`.
+
+name = "twitter-for-evang2"
+main = "src/index.ts"
+compatibility_date = "2025-05-07"
+
+# Your Cloudflare account ID. Find it at:
+#   https://dash.cloudflare.com/ → right sidebar of any zone, or the URL slug.
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
+
+# KV namespace to store tweets + scrape metadata. Create one with:
+#   npx wrangler kv:namespace create TWEETS_KV
+# then paste the printed ID below.
+[[kv_namespaces]]
+binding = "TWEETS_KV"
+id = "YOUR_KV_NAMESPACE_ID"
+
+# Secrets (set out-of-band — do NOT commit values):
+#   npx wrangler secret put X_BEARER_TOKEN   # OAuth 2.0 User Context access token
+#   npx wrangler secret put X_USER_ID        # numeric X user ID whose home timeline to read

@@ -1,0 +1,22 @@
+{
+  "package_id": "REPLACE_WITH_YOUR_PACKAGE_ID",
+  "edition": "202601",
+  "name": "Twitter for G2",
+  "version": "0.1.0",
+  "min_app_version": "2.0.0",
+  "min_sdk_version": "0.0.7",
+  "entrypoint": "index.html",
+  "permissions": [
+    {
+      "name": "network",
+      "desc": "Fetches tweets from your Cloudflare Worker",
+      "whitelist": [
+        "https://twitter-for-evang2.YOUR-SUBDOMAIN.workers.dev"
+      ]
+    }
+  ],
+  "supported_languages": [
+    "en",
+    "ja"
+  ]
+}
