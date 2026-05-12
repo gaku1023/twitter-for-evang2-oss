@@ -34,11 +34,15 @@ export async function fetchHomeTimeline(
 
   const url = `https://api.x.com/2/users/${encodeURIComponent(userId)}/timelines/reverse_chronological?${params.toString()}`
 
+  // Explicit 25s timeout — below Cloudflare's 30s request CPU limit so we
+  // surface an AbortError to the error path before the platform kills the
+  // Worker invocation.
   const res = await fetch(url, {
     headers: {
       Authorization: `Bearer ${bearerToken}`,
       'User-Agent': 'twitter-for-evanG2-oss',
     },
+    signal: AbortSignal.timeout(25_000),
   })
 
   if (!res.ok) {

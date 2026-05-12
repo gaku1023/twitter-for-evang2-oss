@@ -102,6 +102,8 @@ curl -X POST https://twitter-for-evang2.<your-subdomain>.workers.dev/tweets/refr
 curl https://twitter-for-evang2.<your-subdomain>.workers.dev/tweets | jq '. | length'
 ```
 
+> ⚠️ **Security**: the Worker has no authentication and `Access-Control-Allow-Origin: *` so the g2-app WebView can reach it. Anyone with the URL can read your timeline and trigger paid X API calls. Treat the Worker URL as a secret — don't share it, don't commit it, don't put it in a public Even Hub manifest unless you accept that exposure. For a stronger guarantee, gate the endpoints behind a pre-shared bearer (`wrangler secret put ACCESS_TOKEN`) and send it from g2-app via an `Authorization` header.
+
 ### 3. Build & sideload the g2-app
 
 ```bash
