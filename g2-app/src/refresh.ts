@@ -45,9 +45,10 @@ export async function refreshAndRebuild(): Promise<void> {
       await new Promise(r => setTimeout(r, REFRESH_POLL_INTERVAL_MS))
       try {
         const meta = await fetchStatus()
-        // Wait for the scraper to finish — `last_handled_request_id` matches
-        // as soon as the scraper *starts*, so we must also require state !==
-        // "running" to confirm completion.
+        // The worker writes `last_handled_request_id` when the scrape starts
+        // (state === 'running') and updates state to 'idle'/'error' when it
+        // finishes, so we must require state !== 'running' to confirm
+        // completion.
         if (meta.last_handled_request_id === requestId && meta.state !== 'running') {
           done = meta.state !== 'error'
           errored = meta.state === 'error'
@@ -112,6 +113,9 @@ export async function refreshAndRebuild(): Promise<void> {
     // Recompute NEW page-count cache and arm the next AUTO precharge cycle.
     rebuildNewPageCounts()
 
+    // First successful refresh clears the "Loading first batch..." placeholder.
+    state.initialFetchPending = false
+
     setRefreshStatus('done')
   } finally {
     state.refreshing = false
@@ -119,7 +123,9 @@ export async function refreshAndRebuild(): Promise<void> {
     // the timer was stopped (by FOREGROUND_EXIT) and no `startAutoTimer`
     // call landed inside the try block (e.g., refresh timed out or yielded
     // no new tweets), make sure the timer is restarted so the user doesn't
-    // come back from background to a frozen page.
-    if (state.mode === 'auto' && !state.autoTimer) startAutoTimer()
+    // come back from background to a frozen page. Gated on `foregrounded`
+    // so a refresh that completes while the app is in the background
+    // doesn't silently reinstate the timer.
+    if (state.foregrounded && state.mode === 'auto' && !state.autoTimer) startAutoTimer()
   }
 }

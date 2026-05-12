@@ -45,9 +45,14 @@ export function progressContent(): string {
 }
 
 export function footerContent(t: Tweet): string {
-  const parts: string[] = [t.user_name]
-  if (t.like_count) parts.push(`♡ ${t.like_count}`)
-  if (t.retweet_count) parts.push(`RT ${t.retweet_count}`)
-  if (t.reply_count) parts.push(`Rp ${t.reply_count}`)
-  return parts.join('  ')
+  // Counts are always present (worker sends "0" or higher), so the previous
+  // truthy guards were dead code. Showing zeros is intentional — it keeps the
+  // footer layout stable and tells the user the tweet really has zero engagement
+  // rather than missing data.
+  return [
+    t.user_name,
+    `♡ ${t.like_count}`,
+    `RT ${t.retweet_count}`,
+    `Rp ${t.reply_count}`,
+  ].join('  ')
 }

@@ -82,12 +82,19 @@ export function modeSelectBodyContent(): string {
     .join('\n')
 }
 
+function emptyBodyContent(): string {
+  // Initial load shows "Loading…" so users don't see a Failed message while
+  // the background scrape (kicked off in main.ts) is still in flight.
+  return state.initialFetchPending
+    ? 'Loading first batch...\nThis may take a few seconds.'
+    : 'Failed to load tweets.\nCheck your Worker URL.'
+}
+
 export function buildContainerSpec(): TextContainerProperty[] {
   if (state.tweets.length === 0) {
     return [
       mkContainer(1, 'header', HEADER_ROW_Y, HEADER_ROW_H, 'Twitter for G2', 0),
-      mkContainer(2, 'body', BODY_Y, BODY_H,
-        'Failed to load tweets.\nCheck your Worker URL.', 1),
+      mkContainer(2, 'body', BODY_Y, BODY_H, emptyBodyContent(), 1),
       mkContainer(3, 'footer', FOOTER_Y, FOOTER_H, '', 0, 0, FOOTER_LEFT_W),
       mkContainer(4, 'refresh', CLOCK_ROW_Y, CLOCK_ROW_H, '', 0, 0, CLOCK_X),
       mkContainer(5, 'clock', CLOCK_ROW_Y, CLOCK_ROW_H, fmtClock(), 0, CLOCK_X, CLOCK_W),
@@ -168,7 +175,7 @@ export function confirmModeRender(): Promise<void> {
         new TextContainerUpgrade({
           containerID: 2,
           containerName: 'body',
-          content: 'Failed to load tweets.\nCheck your Worker URL.',
+          content: emptyBodyContent(),
         }),
       )
       await state.bridge.textContainerUpgrade(
