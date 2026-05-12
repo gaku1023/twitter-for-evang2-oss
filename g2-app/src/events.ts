@@ -94,6 +94,9 @@ export function subscribeEvents(onSystemExit: () => void): () => void {
     }
 
     if (sysType === OsEventTypeList.FOREGROUND_ENTER_EVENT) {
+      // Set foregrounded BEFORE kicking refreshAndRebuild so the finally
+      // block's timer-restart guard sees us as visible.
+      state.foregrounded = true
       // refreshAndRebuild() restarts the AUTO timer in its `finally` block,
       // so the previous explicit startAutoTimer() here is redundant — and
       // would reset progressStart twice in quick succession, which surfaced
@@ -104,6 +107,10 @@ export function subscribeEvents(onSystemExit: () => void): () => void {
     }
 
     if (sysType === OsEventTypeList.FOREGROUND_EXIT_EVENT) {
+      // Clear foregrounded BEFORE stopping the timer so any in-flight
+      // refreshAndRebuild that's about to hit its finally block sees us as
+      // background and skips the timer restart.
+      state.foregrounded = false
       // Stop the AUTO ticker so we don't burn HTTP/KV (precharge fires) and
       // SDK bridge upgrades while the user isn't looking. The in-flight refresh
       // poll, if any, is left to complete on its own.

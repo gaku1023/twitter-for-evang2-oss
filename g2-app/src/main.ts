@@ -20,6 +20,10 @@ state.bridge = await waitForEvenAppBridge()
 state.tweets = await fetchTweets().catch(() => [])
 if (state.tweets.length > 0) {
   state.pages = paginateText(state.tweets[0].text)
+  // We have data already — the empty-state placeholder won't render. Clear
+  // the flag for symmetry, so later code paths can't mistakenly fall back
+  // to "Loading...".
+  state.initialFetchPending = false
 }
 
 // Use the proven tweet-view spec for the initial container creation, then

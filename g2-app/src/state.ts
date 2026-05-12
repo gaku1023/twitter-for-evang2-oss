@@ -67,4 +67,14 @@ export const state = {
   clockInterval: null as ReturnType<typeof setInterval> | null,
 
   cleanedUp: false,
+
+  // True while the app is in the foreground. Drives whether the AUTO timer
+  // is allowed to restart from refresh.ts's finally block — otherwise a
+  // FOREGROUND_EXIT during a long refresh would be silently overridden when
+  // the refresh completes.
+  foregrounded: true,
+  // True between app launch and the first time we successfully render a
+  // tweet (either via the initial /tweets read or the background scrape that
+  // runs during mode-select). Distinguishes "Loading…" from "Failed".
+  initialFetchPending: true,
 }
