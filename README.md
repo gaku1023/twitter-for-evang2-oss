@@ -1,5 +1,7 @@
 # Twitter for evanG2 (OSS)
 
+> ⚠️ **Status: unverified / experimental.** This fork was migrated from a working private edition (Playwright scraper) to the X API v2, but the end-to-end flow against the live X API has not been tested yet. The original private edition is in production daily; this OSS variant is the design only. Verify against your own account before relying on it, and please open an issue if anything fails. PRs welcome.
+
 A text-only Twitter / X timeline reader for the [Even Realities G2](https://evenrealities.com/) e-paper smart glasses. Strips out images, videos, retweets, and replies — just the text of your home timeline, rendered on the 576×288 / 16-grayscale e-paper display.
 
 This is a public-API fork of the original [private edition](https://github.com/your-org/Twitter-for-evanG2). Instead of Playwright scraping, this version reads via the official **X API v2 reverse-chronological home timeline** endpoint, so:
