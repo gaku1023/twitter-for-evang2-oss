@@ -72,8 +72,8 @@ export function mkContainer(
 
 // ---- Mode select screen ----
 export const MODE_OPTIONS: { value: AppMode; label: string }[] = [
-  { value: 'auto', label: '自動 (10秒ごとに次のページ)' },
-  { value: 'manual', label: '手動 (リングで操作)' },
+  { value: 'auto', label: 'Auto (next page every 10s)' },
+  { value: 'manual', label: 'Manual (use ring to navigate)' },
 ]
 
 export function modeSelectBodyContent(): string {
@@ -87,7 +87,7 @@ export function buildContainerSpec(): TextContainerProperty[] {
     return [
       mkContainer(1, 'header', HEADER_ROW_Y, HEADER_ROW_H, 'Twitter for G2', 0),
       mkContainer(2, 'body', BODY_Y, BODY_H,
-        'ツイートを読み込めませんでした。\nWorkerのURLを確認してください。', 1),
+        'Failed to load tweets.\nCheck your Worker URL.', 1),
       mkContainer(3, 'footer', FOOTER_Y, FOOTER_H, '', 0, 0, FOOTER_LEFT_W),
       mkContainer(4, 'refresh', CLOCK_ROW_Y, CLOCK_ROW_H, '', 0, 0, CLOCK_X),
       mkContainer(5, 'clock', CLOCK_ROW_Y, CLOCK_ROW_H, fmtClock(), 0, CLOCK_X, CLOCK_W),
@@ -109,13 +109,13 @@ export function buildContainerSpec(): TextContainerProperty[] {
 export function showModeSelect(): Promise<void> {
   return enqueueTask(async () => {
     await state.bridge.textContainerUpgrade(
-      new TextContainerUpgrade({ containerID: 1, containerName: 'header', content: 'Twitter for G2 - モード選択' }),
+      new TextContainerUpgrade({ containerID: 1, containerName: 'header', content: 'Twitter for G2 - Select Mode' }),
     )
     await state.bridge.textContainerUpgrade(
       new TextContainerUpgrade({ containerID: 2, containerName: 'body', content: modeSelectBodyContent() }),
     )
     await state.bridge.textContainerUpgrade(
-      new TextContainerUpgrade({ containerID: 3, containerName: 'footer', content: 'リングで選択 / クリックで決定' }),
+      new TextContainerUpgrade({ containerID: 3, containerName: 'footer', content: 'Ring to select / click to confirm' }),
     )
   })
 }
@@ -168,7 +168,7 @@ export function confirmModeRender(): Promise<void> {
         new TextContainerUpgrade({
           containerID: 2,
           containerName: 'body',
-          content: 'ツイートを読み込めませんでした。\nWorkerのURLを確認してください。',
+          content: 'Failed to load tweets.\nCheck your Worker URL.',
         }),
       )
       await state.bridge.textContainerUpgrade(
@@ -203,10 +203,10 @@ export function tickClock(): void {
 
 // ---- Refresh status indicator (top-left, mirror of the clock at top-right) ----
 function refreshStatusContent(): string {
-  return state.refreshState === 'running' ? '更新中...' :
-         state.refreshState === 'done'    ? '更新完了' :
-         state.refreshState === 'timeout' ? 'タイムアウト' :
-         state.refreshState === 'error'   ? '更新失敗' : ''
+  return state.refreshState === 'running' ? 'Updating...' :
+         state.refreshState === 'done'    ? 'Updated' :
+         state.refreshState === 'timeout' ? 'Timeout' :
+         state.refreshState === 'error'   ? 'Failed' : ''
 }
 
 function renderRefreshStatus(): void {

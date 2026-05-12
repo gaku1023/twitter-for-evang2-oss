@@ -21,7 +21,7 @@ export const BODY_INNER_W = DISPLAY_W - PAD * 2             // 568
 export const COUNTER_W = 55
 export const COUNTER_X = DISPLAY_W - COUNTER_W              // 521
 export const COUNTER_Y = BODY_Y + BODY_H - LINE_H
-export const CLOCK_W = getTextWidth('12/31(日) 23:59') + PAD * 2
+export const CLOCK_W = getTextWidth('12/31(Sun) 23:59') + PAD * 2
 export const CLOCK_X = DISPLAY_W - CLOCK_W
 // Progress bar shares the footer row, anchored to the right; footer text gets
 // the remaining width on the left. 19 cells fill over 9.5 seconds (one cell
@@ -39,10 +39,10 @@ export const PROGRESS_TICK_MS = 500
 // Refresh polling: the OSS worker fetches synchronously from X API, so the
 // first poll typically already sees state=idle with a matching request_id.
 // We keep a poll loop (rather than relying on the POST response alone) so the
-// status indicator can show "更新中..." while the request is in flight.
+// status indicator can show "Updating..." while the request is in flight.
 export const REFRESH_POLL_INTERVAL_MS = 2000
 export const REFRESH_TIMEOUT_MS = 60 * 1000
-// How long "更新完了" / "タイムアウト" lingers before the status clears.
+// How long "Updated" / "Timeout" lingers before the status clears.
 export const REFRESH_DONE_DISPLAY_MS = 5_000
 
 // Pages remaining in NEW (including the current page) at which we fire the

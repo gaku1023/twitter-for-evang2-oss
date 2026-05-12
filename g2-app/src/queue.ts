@@ -32,7 +32,7 @@ import {
 // The queue also coalesces renderCurrent: if the bridge is slow (BLE drop /
 // device wake), many auto-advance callbacks pile up — instead of replaying
 // every intermediate page, we drop the queue down to a single render against
-// the latest `state.currentIndex / currentPage`. This kills the "爆速スクロール"
+// the latest `state.currentIndex / currentPage`. This kills the "blazing scroll"
 // where, on bridge resume, the chain rapid-fires N queued page transitions.
 
 let queueRunning = false

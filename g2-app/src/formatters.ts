@@ -11,7 +11,7 @@ export function fmtDate(iso: string): string {
   return `${mo}/${dy} ${hh}:${mm}`
 }
 
-export const DOW = ['日', '月', '火', '水', '木', '金', '土'] as const
+export const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const
 
 export function fmtClock(): string {
   const d = new Date()

@@ -56,7 +56,7 @@ export const state = {
   pagesSinceLastRefresh: 0,
 
   refreshState: 'idle' as RefreshState,
-  // Auto-clear timer for the "更新完了" indicator.
+  // Auto-clear timer for the "Updated" indicator.
   refreshStatusClearTimer: null as ReturnType<typeof setTimeout> | null,
 
   // Auto-advance + progress + clock timers.
